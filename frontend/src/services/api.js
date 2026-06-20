@@ -9,10 +9,13 @@ const api = axios.create({
   timeout: 10000 // 10 second timeout
 });
 
-// Request interceptor (optional for future auth)
+// Attach JWT token to every request
 api.interceptors.request.use(
   (config) => {
-    // You can add auth tokens here in the future
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => {

@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 const navLinkClass = ({ isActive }) =>
   `text-gray-700 hover:text-primary transition-smooth ${
@@ -14,6 +15,23 @@ const navItems = [
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
+  const initials = user?.name
+    ? user.name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2)
+    : "U";
 
   return (
     <nav className="bg-white shadow-sm sticky top-0 z-50">
@@ -37,12 +55,46 @@ export default function Navbar() {
                 {label}
               </NavLink>
             ))}
-            <div className="w-10 h-10 bg-primary-light rounded-full flex items-center justify-center">
-              <span className="text-primary font-semibold">U</span>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setUserMenuOpen((o) => !o)}
+                className="w-10 h-10 bg-primary-light rounded-full flex items-center justify-center hover:bg-primary/20 transition-smooth"
+                aria-label="User menu"
+              >
+                <span className="text-primary font-semibold text-sm">{initials}</span>
+              </button>
+              {userMenuOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1">
+                  <div className="px-4 py-2 border-b border-gray-100">
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {user?.name}
+                    </p>
+                    <p className="text-xs text-gray-500 truncate">
+                      {user?.email}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-smooth"
+                  >
+                    Sign out
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
-          <div className="md:hidden flex items-center">
+          <div className="md:hidden flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setUserMenuOpen((o) => !o)}
+              className="w-8 h-8 bg-primary-light rounded-full flex items-center justify-center"
+              aria-label="User menu"
+            >
+              <span className="text-primary font-semibold text-xs">{initials}</span>
+            </button>
             <button
               type="button"
               onClick={() => setMobileMenuOpen((open) => !open)}
@@ -89,6 +141,19 @@ export default function Navbar() {
                 {label}
               </NavLink>
             ))}
+            <div className="border-t border-gray-100 pt-3">
+              <p className="text-sm text-gray-500 px-1">{user?.email}</p>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  handleLogout();
+                }}
+                className="text-red-600 text-sm hover:text-red-700 mt-1 px-1"
+              >
+                Sign out
+              </button>
+            </div>
           </div>
         )}
       </div>

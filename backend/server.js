@@ -3,6 +3,8 @@ const cors = require("cors");
 const pool = require("./config/db");
 const taskRoutes = require("./routes/taskRoutes");
 const logRoutes = require("./routes/logRoutes");
+const authRoutes = require("./routes/authRoutes");
+const auth = require("./middleware/auth");
 require("dotenv").config();
 
 const app = express();
@@ -12,8 +14,9 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.use("/api/tasks", taskRoutes);
-app.use("/api/logs", logRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/tasks", auth, taskRoutes);
+app.use("/api/logs", auth, logRoutes);
 
 // Health Check Route
 app.get("/", async (req, res) => {
